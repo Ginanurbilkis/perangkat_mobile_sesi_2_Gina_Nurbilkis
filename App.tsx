@@ -1,264 +1,115 @@
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  ScrollView,
-  Pressable,
-  FlatList,
-  Dimensions,
-} from 'react-native';
-import React from 'react';
+import { View, Text, StyleSheet, TextInput, Pressable, FlatList } from 'react-native';
+import React, { useState } from 'react';
 
-const coffeeCategory = [
-  'Capucino',
-  'Capucino',
-  'Capucino',
-  'Capucino',
-  'Capucino',
-  'Capucino',
-  'Capucino',
-  'Capucino',
-];
-
-interface CoffeeItem {
+interface toDo {
   id: number;
-  image: any;
-  rating: number;
   title: string;
-  desc: string;
-  price: string;
+  statue: boolean;
 }
 
-const data: CoffeeItem[] = [
-  {
-    id: 1,
-    image: require('./assets/coffee.png'),
-    rating: 4.5,
-    title: 'Cappucino',
-    desc: 'With Chocolate',
-    price: '4.53',
-  },
-  {
-    id: 2,
-    image: require('./assets/coffee.png'),
-    rating: 4.5,
-    title: 'Cappucino',
-    desc: 'With Chocolate',
-    price: '4.53',
-  },
-  {
-    id: 3,
-    image: require('./assets/coffee.png'),
-    rating: 4.5,
-    title: 'Cappucino',
-    desc: 'With Chocolate',
-    price: '4.53',
-  },
-  {
-    id: 4,
-    image: require('./assets/coffee.png'),
-    rating: 4.5,
-    title: 'Cappucino',
-    desc: 'With Chocolate',
-    price: '4.53',
-  },
-  {
-    id: 5,
-    image: require('./assets/coffee.png'),
-    rating: 4.5,
-    title: 'Cappucino',
-    desc: 'With Chocolate',
-    price: '4.53',
-  },
-  {
-    id: 6,
-    image: require('./assets/coffee.png'),
-    rating: 4.5,
-    title: 'Cappucino',
-    desc: 'With Chocolate',
-    price: '4.53',
-  },
-];
-
 const App = () => {
-  const {width} = Dimensions.get('window');
-  const itemMargin = 10;
-  const itemWidth = width / 2 - itemMargin * 4;
+  const [title, setTitle] = useState<string>(''); // Input baru untuk menambah to-do
+  const [toDo, setToDo] = useState<toDo[]>([]); // Daftar to-do
+  const [editId, setEditId] = useState<number | null>(null); // Id item yang sedang diedit
+  const [editTitle, setEditTitle] = useState<string>(''); // Input baru untuk edit to-do
+
+  // Fungsi untuk menambah to-do
+  const handleAdd = () => {
+    if (title.trim() === '') {
+      return;
+    }
+
+    const newToDo = {
+      id: Date.now(),
+      title: title,
+      statue: false,
+    };
+
+    setToDo(prev => [...prev, newToDo]);
+    setTitle('');
+  };
+
+  // Fungsi untuk menghapus to-do
+  const handleDelete = (deleteId: number) => {
+    const updatedToDo = toDo.filter(item => item.id !== deleteId);
+    setToDo(updatedToDo);
+  };
+
+  // Fungsi untuk memulai proses edit
+  const handleStartEdit = (id: number, currentTitle: string) => {
+    setEditId(id); // Set ID dari to-do yang sedang diedit
+    setEditTitle(currentTitle); // Set judul dari to-do yang ingin diedit
+  };
+
+  // Fungsi untuk menyimpan hasil edit to-do
+  const handleEdit = () => {
+    if (editTitle.trim() === '') {
+      return;
+    }
+
+    setToDo(prev =>
+      prev.map(item =>
+        item.id === editId ? { ...item, title: editTitle } : item,
+      ),
+    );
+    setEditId(null); // Set kembali editId menjadi null setelah selesai mengedit
+    setEditTitle(''); // Reset editTitle setelah mengedit
+  };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: 'black',
-      }}>
-      <View
-        style={{
-          marginHorizontal: 10,
-          marginTop: 10,
-        }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 10,
-          }}>
-          <View>
-            <Text>Location</Text>
-            <Text
-              style={{
-                fontWeight: 600,
-                fontSize: 18,
-              }}>
-              Bilzen, Tanjungbalai
-            </Text>
-          </View>
-
-          <Image
-            source={require('./assets/profile.png')}
-            style={{
-              height: 45,
-              width: 45,
-              borderRadius: 12,
-            }}
-          />
-        </View>
+    <View style={style.container}>
+      <View style={style.row}>
         <TextInput
-          style={{
-            backgroundColor: 'white',
-            marginBottom: 20,
-            borderRadius: 12,
-            padding: 10,
-          }}
-          placeholder="Search coffee"
-          placeholderTextColor={'grey'}
+          style={style.input}
+          placeholder="Tambah to-do"
+          value={title}
+          onChangeText={setTitle}
         />
-        <Image
-          source={require('./assets/hero.png')}
-          style={{
-            width: '100%',
-            height: 140,
-            borderRadius: 12,
-          }}
-        />
+        <Pressable style={style.button} onPress={handleAdd}>
+          <Text style={style.texts}>Add</Text>
+        </Pressable>
       </View>
-      <ScrollView
-        horizontal
-        contentContainerStyle={{padding: 16}}
-        showsHorizontalScrollIndicator={false}>
-        {coffeeCategory.map((category, index) => (
-          <Pressable
-            key={index}
-            style={{
-              backgroundColor: index === 0 ? '#C67C4E' : 'white',
-              paddingHorizontal: 4,
-              paddingVertical: 10,
-              borderRadius: 12,
-              marginLeft: 8,
-              marginBottom: 25,
-              height: 40,
-            }}>
-            <Text
-              style={{
-                color: index === 0 ? 'white' : 'black',
-              }}>
-              {category}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+
       <FlatList
-        data={data}
-        numColumns={2}
-        style={{
-          width: '100%',
-        }}
-        renderItem={({item}: {item: CoffeeItem}) => (
-          <View
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 12,
-              padding: 10,
-              width: width / 2 - 20,
-              margin: 8,
-            }}>
-            <View
-              style={{
-                position: 'relative',
-              }}>
-              <Image
-                source={require('./assets/coffee.png')}
-                style={{
-                  width: '100%',
-                  height: 140,
-                }}
-              />
-              <View
-                style={{
-                  position: 'absolute',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 5,
-                  marginLeft: 5
-                }}>
-                <Image source={require('./assets/star.png')} style={{
-                  width: 10,
-                  marginRight: 2,
-                  height: 10
-                }} />
-                <Text
-                style={{
-                  fontSize: 10
-                }}
-                >{item.price}</Text>
-              </View>
-            </View>
-            <Text
-              style={{
-                color: 'black',
-                fontSize: 16,
-                fontWeight: 500,
-              }}>
-              {item.title}{' '}
-            </Text>
-            <Text
-              style={{
-                color: 'grey',
-                fontSize: 12,
-              }}>
-              {item.desc}{' '}
-            </Text>
-            <View
-              style={{
-                justifyContent: 'space-between',
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Text
-                style={{
-                  color: '#2F4B4E',
-                  fontSize: 18,
-                  fontWeight: 600,
-                }}>
-                $ {item.price}
-              </Text>
-              <View
-                style={{
-                  width: 40,
-                  borderRadius: 12,
-                  height: 40,
-                  backgroundColor: '#C67C4E',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 600,
-                  }}>
-                  +
-                </Text>
+        data={toDo}
+        keyExtractor={item => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={style.flex}>
+            <View style={[style.row, style.bt]}>
+              {editId === item.id ? (
+                // Jika sedang dalam mode edit, tampilkan input untuk edit
+                <TextInput
+                  style={style.input}
+                  value={editTitle}
+                  onChangeText={setEditTitle}
+                />
+              ) : (
+                // Jika tidak dalam mode edit, tampilkan teks biasa
+                <Text style={style.texts}>{item.title}</Text>
+              )}
+
+              <View style={style.row}>
+                {editId === item.id ? (
+                  // Jika sedang dalam mode edit, tampilkan tombol "Save"
+                  <Pressable style={buttonRadius('green').buttonRad} onPress={handleEdit}>
+                    <Text style={style.texts}>Save</Text>
+                  </Pressable>
+                ) : (
+                  // Jika tidak dalam mode edit, tampilkan tombol "Edit"
+                  <Pressable
+                    style={buttonRadius('blue').buttonRad}
+                    onPress={() => handleStartEdit(item.id, item.title)}
+                  >
+                    <Text style={style.texts}>Edit</Text>
+                  </Pressable>
+                )}
+
+                <Pressable
+                  style={buttonRadius('red').buttonRad}
+                  onPress={() => handleDelete(item.id)}
+                >
+                  <Text style={style.texts}>Delete</Text>
+                </Pressable>
               </View>
             </View>
           </View>
@@ -267,5 +118,52 @@ const App = () => {
     </View>
   );
 };
+
+const style = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
+  flex: {
+    flex: 1,
+  },
+  texts: {
+    color: 'black',
+    fontSize: 18,
+  },
+  input: {
+    borderColor: 'black',
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 8,
+    marginRight: 10,
+    borderWidth: 1,
+  },
+  button: {
+    paddingHorizontal: 20,
+    backgroundColor: 'blue',
+    justifyContent: 'center',
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  bt: {
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+  },
+});
+
+const buttonRadius = (color: any) =>
+  StyleSheet.create({
+    buttonRad: {
+      padding: 10,
+      backgroundColor: color,
+      borderRadius: 12,
+      marginHorizontal: 5,
+    },
+  });
 
 export default App;
